@@ -1,0 +1,7 @@
+asgiref==3.8.1
+Django==5.0.3
+pyngrok==7.1.6
+pytz==2024.1
+PyYAML==6.0.1
+sqlparse==0.4.4
+typing_extensions==4.10.0
