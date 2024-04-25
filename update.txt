@@ -67,38 +67,41 @@ def index(request):
 
         elif text == '3*1' or text == '3*2' or text == '3*3' or text == '3*4'\
                 or text == '3*5':
-                    # assuming each bus has a capacity of 37 seats
-                    # assuming each bus has a capacity of 37 seats
-                    seat = random.randint(1, 37)
-                    buses = Bus.objects.filter(is_available=True)
-                    
-                    if buses.exists():
-                        bus = buses.first()
-                        departure = timezone.now() + timedelta(hours=1)
-                        # available_seats = bus.seats
-                        # check if there are available seats
-                        if bus.seats > 0:
-                            new_booking = Booking.objects.create(
-                                bus=bus,
-                                customer=phone_number,
-                                seat=seat,
-                                departure=departure
-                                )
-                            bus.seats -= 1
-                            bus.save()
-                            response = f"END Here is your booking info: \n TICKET \
-                                NO {new_booking.id} \n Bus Number is {bus} \
-                                \n Your seat number is {seat} \n Your bus leaves \
-                                at {departure:%H:%M:%S}"
+            # assuming each bus has a capacity of 37 seats
+            seat = random.randint(1, 37)
+            buses = Bus.objects.filter(is_available=True)
+            buses = [bus for bus in buses ]
+            bus = random.choice(buses)
+            bus.route = text.split('*')[1]
+            bus.save()
 
-                            # check if all seats are booked
-                            if bus.seats == 0:
-                                bus.is_available = False
-                                bus.save()
-                        else:
-                            response = "END Sorry, no seats available on this bus."
-                    else:
-                        response = "END No buses available for this route."
+            if bus.route == text.split('*')[1] and bus.is_available == True:
+                # bus = buses.first()
+                departure = timezone.now() + timedelta(hours=1)
+                # available_seats = bus.seats
+                # check if there are available seats
+                if bus.seats > 0:
+                    new_booking = Booking.objects.create(
+                            bus=bus,
+                            customer=phone_number,
+                            seat=seat,
+                            departure=departure
+                            )
+                    bus.seats -= 1
+                    bus.save()
+                    response = f"END Here is your booking info: \n TICKET \
+                            NO {new_booking.id} \n Bus Number is {bus} \
+                            \n Your seat number is {seat} \n Your bus leaves \
+                            at {departure:%H:%M:%S}"
+
+                    # check if all seats are booked
+                    if bus.seats == 0:
+                        bus.is_available = False
+                        bus.save()
+                else:
+                    response = "END Sorry, no seats available on this bus."
+            else:
+                response = "END No buses available for this route."
 
         elif text == "4":
             response = "CON Are you sure you want to cancel your ticket?  \n"
@@ -131,3 +134,4 @@ def index(request):
             response = "END Work in progress, check again soon"
 
         return HttpResponse(response)
+
